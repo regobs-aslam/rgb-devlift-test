@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ajmal-ns
+  labels:
+    name: ajmal-ns
+    environment: stage
+    devlift.ai/tenant: ajmal
