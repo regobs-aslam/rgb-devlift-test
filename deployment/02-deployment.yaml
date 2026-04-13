@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ajmal-trial-us-01-hello
+  namespace: ajmal-ns
+  annotations:
+    reloader.stakater.com/auto: 'true'
+  labels:
+    app: ajmal-trial-us-01-hello
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: ajmal-trial-us-01-hello
+  template:
+    metadata:
+      labels:
+        app: ajmal-trial-us-01-hello
+        devlift.ai/tenant: ajmal
+        devlift.ai/environment: stage
+        devlift.ai/service: ajmal-trial-us-01-hello
+    spec:
+      serviceAccountName: ajmal-trial-us-01-hello-sa
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: eks.amazonaws.com/instance-category
+                    operator: NotIn
+                    values: ["g", "p"]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+      containers:
+        - name: ajmal-trial-us-01-hello
+          image: 443245368846.dkr.ecr.us-east-1.amazonaws.com/ajmal-trial-us-01-hello:IMAGE_TAG_PLACEHOLDER
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 5000
+
+
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3
+
