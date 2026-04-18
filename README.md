@@ -14,6 +14,8 @@ are configured or needed.
 | POST   | `/test/s3`      | `PutObject` + `GetObject` + `DeleteObject` on `$S3_BUCKET` (round-trip a `probe-<uuid>.txt`).                                |
 | POST   | `/test/sqs`     | `SendMessage` + `ReceiveMessage` + `DeleteMessage` on `$SQS_QUEUE_URL`.                                                      |
 
+Open `/` in a browser for a simple dashboard.
+
 Every endpoint returns HTTP 500 on failure with
 `{"ok": false, "error": "...", "error_type": "AccessDenied" | "ResourceNotFound" | ...}`
 so you can distinguish IAM failures from missing resources.
