@@ -465,9 +465,18 @@ def test_sqs():
 
 
 if __name__ == "__main__":
-    if DB_BACKEND == "dynamodb":
-        init_dynamodb()
-    else:
-        init_postgres()
+    try:
+        if DB_BACKEND == "dynamodb":
+            init_dynamodb()
+        else:
+            init_postgres()
+    except Exception as exc:  # noqa: BLE001
+        # The /save and /requests endpoints need the DB, but the probe
+        # dashboard (/ and /test/*) does not. Don't crashloop the pod over
+        # a DB that may be unreachable or intentionally unconfigured.
+        logger.warning(
+            "DB init failed (backend=%s): %s: %s — /save and /requests will return 500 until fixed",
+            DB_BACKEND, type(exc).__name__, exc,
+        )
     logger.info("Starting server on port 5000 (backend=%s)", DB_BACKEND)
     app.run(host="0.0.0.0", port=5000)
